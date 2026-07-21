@@ -1,0 +1,1 @@
+MONGO_URI = "mongodb://10.0.2.2:27017/registrationdb"
