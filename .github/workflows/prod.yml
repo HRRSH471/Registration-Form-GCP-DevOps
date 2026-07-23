@@ -1,0 +1,42 @@
+name: Deploy Production Environment
+
+on:
+  push:
+    branches:
+      - prod
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.GCP_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.GCP_HOST_PROD }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to Prod VM
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.GCP_USER_PROD }}@${{ secrets.GCP_HOST_PROD }} << 'EOF'
+
+          set -e
+
+          cd /home/hariom/Registration-Form-GCP-DevOps
+
+          git checkout prod
+          git pull origin prod
+
+          pip3 install -r registration-app/requirements.txt
+
+          sudo systemctl restart registration-app
+          sudo systemctl restart nginx
+
+          echo "PROD Deployment Successful"
+
+          EOF
