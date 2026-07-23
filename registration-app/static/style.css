@@ -60,3 +60,29 @@ button:hover{
     background:darkgreen;
 
 }
+
+/* ============================= */
+/* Environment Banner CSS */
+/* ============================= */
+
+.environment-banner{
+    width:100%;
+    padding:12px;
+    text-align:center;
+    font-size:22px;
+    font-weight:bold;
+    color:white;
+    margin-bottom:20px;
+}
+
+.environment-banner.dev{
+    background:#3498db;
+}
+
+.environment-banner.qa{
+    background:#f39c12;
+}
+
+.environment-banner.prod{
+    background:#27ae60;
+}

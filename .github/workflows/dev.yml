@@ -1,0 +1,43 @@
+name: Deploy Dev Environment
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.GCP_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.GCP_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy Application
+        run: |
+          ssh ${{ secrets.GCP_USER }}@${{ secrets.GCP_HOST }} << 'EOF'
+
+          cd ${{ secrets.APP_PATH }}
+
+          git checkout dev
+          git pull origin dev
+
+          source ~/.profile
+
+          pip3 install -r registration-app/requirements.txt
+
+          sudo systemctl restart registration-app
+
+          sudo systemctl restart nginx
+
+          sudo systemctl status registration-app --no-pager
+
+          EOF
